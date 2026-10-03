@@ -1,0 +1,6 @@
+.build/
+.swiftpm/
+Etude.xcodeproj/
+App/Info.generated.plist
+DerivedData/
+*.xcuserstate

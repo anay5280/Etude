@@ -1,0 +1,9 @@
+# Optional neural transcription backend (analyze_neural.py).
+# Needs a Python version supported by a neural runtime — Python 3.10 works well;
+# the newest Python releases have no compatible wheels yet.
+#
+#   python3.10 -m venv .venv310
+#   .venv310/bin/pip install -r requirements-neural.txt
+#
+basic-pitch[onnx]>=0.4
+numpy>=1.24

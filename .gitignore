@@ -1,0 +1,8 @@
+.venv/
+.venv310/
+__pycache__/
+*.pyc
+*.wav
+.DS_Store
+ios/build/
+xcuserdata/

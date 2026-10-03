@@ -1,0 +1,707 @@
+<title>Etude &#183; Piano Tutor</title>
+<style>
+  :root {
+    /* Light theme \u2014 warm score paper */
+    --bg: #FAF7F0;
+    --surface: #FFFFFF;
+    --surface-2: #F1ECE1;
+    --ink: #211D16;
+    --ink-soft: #6B6252;
+    --line: rgba(30, 25, 15, 0.12);
+    --accent: #B07E1E;
+    --accent-ink: #FFFFFF;
+    --good: #1F9D66;
+    --good-bg: rgba(31, 157, 102, 0.12);
+    --bad: #C7422F;
+    --bad-bg: rgba(199, 66, 47, 0.10);
+    --key-white: #FCFAF4;
+    --key-white-edge: #E4DCC9;
+    --key-black: #211E18;
+    --shadow: rgba(40, 30, 10, 0.16);
+    --radius: 14px;
+    --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1A1712;
+      --surface: #242019;
+      --surface-2: #2C2820;
+      --ink: #F2ECDC;
+      --ink-soft: #B4AB98;
+      --line: rgba(255, 255, 255, 0.09);
+      --accent: #DBAC54;
+      --accent-ink: #211906;
+      --good: #54BE8A;
+      --good-bg: rgba(84, 190, 138, 0.16);
+      --bad: #EC7361;
+      --bad-bg: rgba(236, 115, 97, 0.16);
+      --key-white: #EEE8D9;
+      --key-white-edge: #CFC7B2;
+      --key-black: #141210;
+      --shadow: rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1A1712; --surface: #242019; --surface-2: #2C2820;
+    --ink: #F2ECDC; --ink-soft: #B4AB98; --line: rgba(255, 255, 255, 0.09);
+    --accent: #DBAC54; --accent-ink: #211906;
+    --good: #54BE8A; --good-bg: rgba(84, 190, 138, 0.16);
+    --bad: #EC7361; --bad-bg: rgba(236, 115, 97, 0.16);
+    --key-white: #EEE8D9; --key-white-edge: #CFC7B2; --key-black: #141210;
+    --shadow: rgba(0, 0, 0, 0.5);
+  }
+  :root[data-theme="light"] {
+    --bg: #FAF7F0; --surface: #FFFFFF; --surface-2: #F1ECE1;
+    --ink: #211D16; --ink-soft: #6B6252; --line: rgba(30, 25, 15, 0.12);
+    --accent: #B07E1E; --accent-ink: #FFFFFF;
+    --good: #1F9D66; --good-bg: rgba(31, 157, 102, 0.12);
+    --bad: #C7422F; --bad-bg: rgba(199, 66, 47, 0.10);
+    --key-white: #FCFAF4; --key-white-edge: #E4DCC9; --key-black: #211E18;
+    --shadow: rgba(40, 30, 10, 0.16);
+  }
+
+  * { box-sizing: border-box; }
+
+  .studio {
+    font-family: var(--font-ui);
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 600px at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
+      var(--bg);
+    min-height: 100%;
+    padding: clamp(16px, 3vw, 32px);
+    display: flex;
+    justify-content: center;
+    line-height: 1.5;
+  }
+  .console {
+    width: 100%;
+    max-width: 940px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Header */
+  .masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .wordmark { display: flex; align-items: baseline; gap: 12px; }
+  .wordmark h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(28px, 4vw, 40px);
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+  .wordmark .glyph { color: var(--accent); font-size: 1.15em; }
+  .tagline { color: var(--ink-soft); font-size: 14px; }
+
+  /* Controls */
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field > label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--ink-soft); font-weight: 600;
+  }
+  select {
+    font-family: var(--font-ui); font-size: 15px; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 9px 12px; cursor: pointer; min-width: 210px;
+  }
+  .segmented { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; border: 1px solid var(--line); }
+  .segmented button {
+    font-family: var(--font-ui); font-size: 14px; font-weight: 600; color: var(--ink-soft);
+    background: transparent; border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .segmented button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px var(--shadow); }
+  .spacer { flex: 1 1 auto; }
+
+  .btn {
+    font-family: var(--font-ui); font-size: 15px; font-weight: 600;
+    border-radius: 10px; padding: 10px 18px; cursor: pointer;
+    border: 1px solid transparent; transition: transform 0.06s, filter 0.15s, background 0.15s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--line); }
+  .btn-ghost[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+  /* Feedback stage */
+  .stage {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: clamp(18px, 3vw, 28px);
+    box-shadow: 0 1px 3px var(--shadow);
+    display: flex; flex-direction: column; gap: 8px; min-height: 128px; justify-content: center;
+  }
+  .stage .eyebrow {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-soft); font-weight: 700;
+  }
+  .stage .status {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 4.4vw, 38px);
+    font-weight: 600; margin: 0; text-wrap: balance; line-height: 1.15;
+  }
+  .stage .detail { color: var(--ink-soft); font-size: 15px; min-height: 22px; }
+  .status .played { color: var(--bad); }
+  .status.correct { color: var(--good); }
+  .status.target .note { color: var(--accent); }
+
+  .meters { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+  .meter { font-size: 14px; color: var(--ink-soft); }
+  .meter b { color: var(--ink); font-weight: 700; }
+  .meter.good b { color: var(--good); }
+  .meter.bad b { color: var(--bad); }
+  .progress-track { flex: 1 1 160px; height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; min-width: 120px; }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width 0.25s ease; }
+
+  /* Note ribbon */
+  .ribbon {
+    display: flex; gap: 8px; overflow-x: auto; padding: 10px 4px 14px;
+    scroll-behavior: smooth;
+  }
+  .ribbon::-webkit-scrollbar { height: 8px; }
+  .ribbon::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+  .chip {
+    flex: 0 0 auto; min-width: 46px; text-align: center;
+    font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums;
+    padding: 10px 10px; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft);
+    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .chip.done-correct { background: var(--good-bg); color: var(--good); border-color: transparent; }
+  .chip.done-wrong { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
+  .chip.current { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); transform: translateY(-2px); }
+
+  /* Keyboard */
+  .keyboard-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: 0 1px 3px var(--shadow); }
+  .keyboard {
+    position: relative; height: clamp(150px, 26vw, 210px);
+    display: flex; user-select: none; touch-action: manipulation;
+  }
+  .key {
+    font-family: var(--font-ui); cursor: pointer; padding: 0; margin: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .key.white {
+    position: relative; flex: 1 1 0; height: 100%;
+    background: linear-gradient(180deg, var(--key-white), color-mix(in srgb, var(--key-white) 90%, #000));
+    border: 1px solid var(--key-white-edge); border-radius: 0 0 7px 7px;
+    margin-right: -1px; display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 8px; color: #6B6252; font-size: 11px; font-weight: 600;
+  }
+  .key.black {
+    position: absolute; top: 0; height: 62%; z-index: 2;
+    background: linear-gradient(180deg, #3a352c, var(--key-black));
+    border-radius: 0 0 5px 5px; border: 1px solid #000;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.4); color: rgba(255,255,255,0.55); font-size: 9px;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px;
+  }
+  .key:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; z-index: 5; }
+  .key.pressed { filter: brightness(0.9); transform: translateY(1px); }
+  .key.is-target { box-shadow: 0 0 0 3px var(--accent), 0 0 18px color-mix(in srgb, var(--accent) 60%, transparent); animation: pulse 1.4s ease-in-out infinite; }
+  .key.white.is-target { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 24%, var(--key-white)), var(--key-white)); }
+  .key.black.is-target { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 55%, #3a352c), var(--key-black)); }
+  .key.flash-good { background: var(--good) !important; box-shadow: 0 0 20px var(--good); }
+  .key.flash-bad { background: var(--bad) !important; box-shadow: 0 0 20px var(--bad); }
+
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 3px var(--accent), 0 0 8px color-mix(in srgb, var(--accent) 40%, transparent); } 50% { box-shadow: 0 0 0 3px var(--accent), 0 0 22px color-mix(in srgb, var(--accent) 75%, transparent); } }
+
+  .footnote { color: var(--ink-soft); font-size: 13px; text-align: center; }
+  .footnote code { font-family: ui-monospace, "SF Mono", Menlo, monospace; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+  .mic-status { font-size: 13px; color: var(--ink-soft); }
+  .mic-status.live { color: var(--good); }
+  .mic-status.error { color: var(--bad); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .key.is-target { animation: none; }
+    .ribbon, .progress-fill { scroll-behavior: auto; transition: none; }
+  }
+  @media (max-width: 560px) {
+    select { min-width: 0; width: 100%; }
+    .field { flex: 1 1 100%; }
+    .key.white { font-size: 0; }
+  }
+</style>
+
+<div class="studio">
+  <div class="console">
+    <header class="masthead">
+      <div class="wordmark">
+        <h1><span class="glyph">&#119070;</span> Etude</h1>
+        <span class="tagline">Learn a piece, note by note.</span>
+      </div>
+      <button class="btn btn-ghost" id="themeToggle" type="button" aria-label="Toggle light or dark theme">Theme</button>
+    </header>
+
+    <div class="controls">
+      <div class="field">
+        <label for="pieceSelect">Piece</label>
+        <select id="pieceSelect"></select>
+      </div>
+      <div class="field">
+        <label for="modeGroup">Mode</label>
+        <div class="segmented" id="modeGroup" role="group" aria-label="Practice mode">
+          <button type="button" data-mode="demonstrate" aria-pressed="false">Demonstrate</button>
+          <button type="button" data-mode="learn" aria-pressed="true">Learn</button>
+          <button type="button" data-mode="practice" aria-pressed="false">Practice</button>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="startBtn" type="button">Start</button>
+      <button class="btn btn-ghost" id="micBtn" type="button" aria-pressed="false" title="Use your microphone to detect what you play">&#127908; Mic</button>
+    </div>
+
+    <section class="stage" aria-live="polite">
+      <span class="eyebrow" id="stageEyebrow">Learn &middot; ready</span>
+      <p class="status" id="stageStatus">Press Start to begin the lesson.</p>
+      <div class="detail" id="stageDetail">Play by clicking the keys, or enable your microphone.</div>
+      <div class="meters">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="meter" id="posMeter">Note <b>0</b> / 0</span>
+        <span class="meter good">Correct <b id="correctMeter">0</b></span>
+        <span class="meter bad">Wrong <b id="wrongMeter">0</b></span>
+        <span class="mic-status" id="micStatus"></span>
+      </div>
+    </section>
+
+    <div class="ribbon" id="ribbon" aria-label="Notes in the piece"></div>
+
+    <div class="keyboard-wrap">
+      <div class="keyboard" id="keyboard"></div>
+    </div>
+
+    <p class="footnote">
+      Click keys to play, or turn on <b>Mic</b> to detect a real piano.
+      For microphone access, serve locally: <code>python -m http.server</code> in the <code>web/</code> folder.
+    </p>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- Music theory helpers ------------------------------------------------
+  var NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  var BLACK = {1:1, 3:1, 6:1, 8:1, 10:1};
+  function midiToName(m) { return NAMES[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1); }
+  function nameToMidi(n) {
+    var m = n.match(/^([A-G]#?)(-?\d+)$/);
+    return NAMES.indexOf(m[1]) + (parseInt(m[2], 10) + 1) * 12;
+  }
+  function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function freqToMidi(f) { return 69 + 12 * Math.log2(f / 440); }
+  function isBlack(m) { return !!BLACK[((m % 12) + 12) % 12]; }
+
+  // ---- Pieces (same data as the Python engine) -----------------------------
+  var PIECES = {
+    twinkle: { title: "Twinkle, Twinkle, Little Star", notes:
+      "C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4 G4 G4 F4 F4 E4 E4 D4 G4 G4 F4 F4 E4 E4 D4 C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4".split(" ") },
+    ode_to_joy: { title: "Ode to Joy \u2014 Beethoven", notes:
+      "E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4 D4 D4 E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4 C4 C4".split(" ") },
+    mary: { title: "Mary Had a Little Lamb", notes:
+      "E4 D4 C4 D4 E4 E4 E4 D4 D4 D4 E4 G4 G4 E4 D4 C4 D4 E4 E4 E4 E4 D4 D4 E4 D4 C4".split(" ") },
+    fur_elise: { title: "F\u00fcr Elise \u2014 main theme", notes:
+      "E5 D#5 E5 D#5 E5 B4 D5 C5 A4 C4 E4 A4 B4 E4 G#4 B4 C5 E4 E5 D#5 E5 D#5 E5 B4 D5 C5 A4".split(" ") }
+  };
+
+  // ---- Audio ---------------------------------------------------------------
+  var audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    if (audioCtx.state === "suspended") { audioCtx.resume(); }
+    return audioCtx;
+  }
+  function playTone(midi, dur) {
+    var ctx = ensureAudio(); dur = dur || 0.5;
+    var t = ctx.currentTime, f = midiToFreq(midi);
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.28, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    g.connect(ctx.destination);
+    [[1, 1], [2, 0.3], [3, 0.14]].forEach(function (h) {
+      var o = ctx.createOscillator();
+      o.type = "sine"; o.frequency.value = f * h[0];
+      var hg = ctx.createGain(); hg.gain.value = h[1];
+      o.connect(hg); hg.connect(g); o.start(t); o.stop(t + dur + 0.02);
+    });
+  }
+
+  // ---- DOM refs ------------------------------------------------------------
+  var $ = function (id) { return document.getElementById(id); };
+  var keyboardEl = $("keyboard"), ribbonEl = $("ribbon");
+  var stageEyebrow = $("stageEyebrow"), stageStatus = $("stageStatus"), stageDetail = $("stageDetail");
+  var posMeter = $("posMeter"), correctMeter = $("correctMeter"), wrongMeter = $("wrongMeter"), progressFill = $("progressFill");
+  var startBtn = $("startBtn"), micBtn = $("micBtn"), micStatus = $("micStatus");
+
+  // ---- Keyboard build ------------------------------------------------------
+  var START_MIDI = 60, END_MIDI = 83;       // C4 .. B5
+  var keyEls = {};
+  function buildKeyboard() {
+    keyboardEl.innerHTML = ""; keyEls = {};
+    var whites = [];
+    for (var m = START_MIDI; m <= END_MIDI; m++) { if (!isBlack(m)) whites.push(m); }
+    var whiteW = 100 / whites.length;
+    whites.forEach(function (m) {
+      var el = document.createElement("button");
+      el.className = "key white"; el.type = "button";
+      el.style.flex = "1 1 0"; el.dataset.midi = m;
+      el.setAttribute("aria-label", midiToName(m));
+      el.textContent = midiToName(m);
+      keyboardEl.appendChild(el); keyEls[m] = el;
+    });
+    var blackW = whiteW * 0.62;
+    for (var b = START_MIDI; b <= END_MIDI; b++) {
+      if (!isBlack(b)) continue;
+      var below = whites.indexOf(b - 1);
+      var el2 = document.createElement("button");
+      el2.className = "key black"; el2.type = "button"; el2.dataset.midi = b;
+      el2.setAttribute("aria-label", midiToName(b));
+      el2.style.width = blackW + "%";
+      el2.style.left = ((below + 1) * whiteW - blackW / 2) + "%";
+      keyboardEl.appendChild(el2); keyEls[b] = el2;
+    }
+  }
+  function flashKey(midi, cls) {
+    var el = keyEls[midi]; if (!el) return;
+    el.classList.add(cls);
+    setTimeout(function () { el.classList.remove(cls); }, 420);
+  }
+  function pressKeyVisual(midi) {
+    var el = keyEls[midi]; if (!el) return;
+    el.classList.add("pressed");
+    setTimeout(function () { el.classList.remove("pressed"); }, 140);
+  }
+  function clearTargets() {
+    Object.keys(keyEls).forEach(function (m) { keyEls[m].classList.remove("is-target"); });
+  }
+  function setTargetKey(midi) {
+    clearTargets();
+    if (keyEls[midi]) keyEls[midi].classList.add("is-target");
+  }
+
+  // ---- Ribbon --------------------------------------------------------------
+  var chipEls = [];
+  function buildRibbon(notes) {
+    ribbonEl.innerHTML = ""; chipEls = [];
+    notes.forEach(function (n, i) {
+      var c = document.createElement("div");
+      c.className = "chip"; c.textContent = n; c.dataset.i = i;
+      ribbonEl.appendChild(c); chipEls.push(c);
+    });
+  }
+  function markChip(i, cls) {
+    if (!chipEls[i]) return;
+    chipEls[i].classList.remove("current");
+    chipEls[i].classList.add(cls);
+  }
+  function setCurrentChip(i) {
+    chipEls.forEach(function (c) { c.classList.remove("current"); });
+    if (chipEls[i]) {
+      chipEls[i].classList.add("current");
+      chipEls[i].scrollIntoView({ inline: "center", block: "nearest" });
+    }
+  }
+
+  // ---- Lesson state --------------------------------------------------------
+  var state = {
+    pieceKey: "twinkle", mode: "learn",
+    notes: [], midi: [], pos: 0, correct: 0, wrong: 0, running: false, demoTimer: null
+  };
+
+  function correctionHint(playedMidi, targetMidi) {
+    var d = targetMidi - playedMidi, steps = Math.abs(d);
+    var dir = d > 0 ? "up" : "down", lh = d > 0 ? "too low" : "too high";
+    var tgt = midiToName(targetMidi);
+    return "You're " + steps + " semitone" + (steps > 1 ? "s" : "") + " " + lh +
+      " \u2014 move " + dir + " " + steps + " key" + (steps > 1 ? "s" : "") + " to " + tgt +
+      " (a " + (isBlack(targetMidi) ? "black" : "white") + " key).";
+  }
+
+  function loadPiece(key) {
+    state.pieceKey = key;
+    state.notes = PIECES[key].notes.slice();
+    state.midi = state.notes.map(nameToMidi);
+    buildRibbon(state.notes);
+    resetSession();
+  }
+
+  function resetSession() {
+    stopDemo();
+    state.pos = 0; state.correct = 0; state.wrong = 0; state.running = false;
+    chipEls.forEach(function (c) { c.className = "chip"; });
+    clearTargets();
+    updateMeters();
+    startBtn.textContent = "Start";
+    setStage(labelFor(state.mode) + " \u00b7 ready",
+      state.mode === "demonstrate" ? "Press Start to hear the piece." :
+      state.mode === "learn" ? "Press Start to learn it note by note." :
+      "Press Start, then play the whole piece.", "");
+  }
+
+  function labelFor(mode) {
+    return mode === "demonstrate" ? "Demonstrate" : mode === "learn" ? "Learn" : "Practice";
+  }
+
+  function updateMeters() {
+    posMeter.innerHTML = "Note <b>" + Math.min(state.pos + (state.running ? 1 : 0), state.notes.length) +
+      "</b> / " + state.notes.length;
+    correctMeter.textContent = state.correct;
+    wrongMeter.textContent = state.wrong;
+    var pct = state.notes.length ? (state.pos / state.notes.length) * 100 : 0;
+    progressFill.style.width = pct + "%";
+  }
+
+  function setStage(eyebrow, statusHTML, detail, statusClass) {
+    stageEyebrow.textContent = eyebrow;
+    stageStatus.innerHTML = statusHTML;
+    stageStatus.className = "status" + (statusClass ? " " + statusClass : "");
+    stageDetail.textContent = detail || "";
+  }
+
+  // ---- Mode controllers ----------------------------------------------------
+  function start() {
+    ensureAudio();
+    resetSession();
+    state.running = true;
+    startBtn.textContent = "Restart";
+    if (state.mode === "demonstrate") { runDemonstrate(); }
+    else if (state.mode === "learn") { promptLearn(); }
+    else { promptPractice(); }
+    updateMeters();
+  }
+
+  // Demonstrate: auto-play each note.
+  function runDemonstrate() {
+    setStage("Demonstrate \u00b7 listen", "Listen to the melody.", "Watch the keys as they play.");
+    var i = 0;
+    function step() {
+      if (i >= state.notes.length) {
+        setStage("Demonstrate \u00b7 done", "That's the whole piece.", "Switch to Learn to play it yourself.", "correct");
+        state.running = false; startBtn.textContent = "Start"; clearTargets(); return;
+      }
+      var m = state.midi[i];
+      setCurrentChip(i); setTargetKey(m); pressKeyVisual(m); playTone(m, 0.45);
+      markChip(i, "done-correct");
+      state.pos = i + 1; updateMeters();
+      i++;
+      state.demoTimer = setTimeout(step, 560);
+    }
+    step();
+  }
+  function stopDemo() { if (state.demoTimer) { clearTimeout(state.demoTimer); state.demoTimer = null; } }
+
+  // Learn: call-and-response, waits for the correct note.
+  function promptLearn() {
+    if (state.pos >= state.notes.length) {
+      clearTargets();
+      setStage("Learn \u00b7 complete", "You learned the whole piece! &#9733;",
+        "Correct on " + state.correct + " of " + state.notes.length + " tries. Try Practice next.", "correct");
+      state.running = false; startBtn.textContent = "Start"; return;
+    }
+    var m = state.midi[state.pos], name = state.notes[state.pos];
+    setCurrentChip(state.pos); setTargetKey(m);
+    setStage("Learn \u00b7 note " + (state.pos + 1) + " of " + state.notes.length,
+      'Play <span class="note">' + name + "</span>", "It's a " + (isBlack(m) ? "black" : "white") + " key \u2014 the glowing one.", "target");
+    playTone(m, 0.4);
+    updateMeters();
+  }
+  function handleLearn(playedMidi) {
+    var target = state.midi[state.pos];
+    if (playedMidi === target) {
+      state.correct++; markChip(state.pos, "done-correct"); flashKey(playedMidi, "flash-good");
+      setStage("Learn \u00b7 correct", "Correct \u2014 " + state.notes[state.pos] + "! &#10003;", "", "correct");
+      state.pos++; updateMeters();
+      setTimeout(promptLearn, 480);
+    } else {
+      state.wrong++; flashKey(playedMidi, "flash-bad"); updateMeters();
+      setStage("Learn \u00b7 try again",
+        'You played <span class="played">' + midiToName(playedMidi) + "</span>",
+        correctionHint(playedMidi, target), "");
+    }
+  }
+
+  // Practice: play the whole piece; graded, advances either way.
+  function promptPractice() {
+    setStage("Practice \u00b7 playing", "Play the piece from the top.", "Each note is graded as you go.");
+    setCurrentChip(0); clearTargets();
+    if (keyEls[state.midi[0]]) keyEls[state.midi[0]].classList.add("is-target");
+    updateMeters();
+  }
+  function handlePractice(playedMidi) {
+    var target = state.midi[state.pos], name = state.notes[state.pos];
+    if (playedMidi === target) {
+      state.correct++; markChip(state.pos, "done-correct"); flashKey(playedMidi, "flash-good");
+      setStage("Practice \u00b7 note " + (state.pos + 1), "Correct \u2014 " + name + "! &#10003;", "", "correct");
+    } else {
+      state.wrong++; markChip(state.pos, "done-wrong"); flashKey(playedMidi, "flash-bad");
+      setStage("Practice \u00b7 note " + (state.pos + 1),
+        'You played <span class="played">' + midiToName(playedMidi) + "</span>, expected " + name + ".",
+        correctionHint(playedMidi, target), "");
+    }
+    state.pos++;
+    updateMeters();
+    if (state.pos >= state.notes.length) {
+      clearTargets();
+      var pct = Math.round((state.correct / state.notes.length) * 100);
+      setStage("Practice \u00b7 complete", "Score: " + state.correct + " / " + state.notes.length + " (" + pct + "%)",
+        state.wrong === 0 ? "Flawless run!" : "Switch to Learn to drill the misses.", state.wrong === 0 ? "correct" : "");
+      state.running = false; startBtn.textContent = "Start";
+    } else {
+      setCurrentChip(state.pos); setTargetKey(state.midi[state.pos]);
+    }
+  }
+
+  // ---- Input dispatch ------------------------------------------------------
+  function registerInput(midi, fromClick) {
+    if (fromClick) { playTone(midi, 0.45); pressKeyVisual(midi); }
+    if (!state.running) return;
+    if (state.mode === "learn") handleLearn(midi);
+    else if (state.mode === "practice") handlePractice(midi);
+    // demonstrate ignores input
+  }
+
+  keyboardEl.addEventListener("pointerdown", function (e) {
+    var key = e.target.closest(".key"); if (!key) return;
+    e.preventDefault();
+    registerInput(parseInt(key.dataset.midi, 10), true);
+  });
+
+  // ---- Microphone pitch detection --------------------------------------------
+  // Normalized-autocorrelation (McLeod-style) detector, tuned for piano:
+  //  * Only searches the keyboard's frequency band. Speech fundamentals — the
+  //    male voice especially — sit BELOW this band, so talking is largely
+  //    ignored before any other test.
+  //  * Requires a CLARITY score (how periodic the signal is). A struck piano
+  //    key is highly periodic; speech and room noise are not, so they're rejected.
+  //  * Bounded to the needed lags (~130), so it's fast enough to keep up with
+  //    quick playing and commits a note after just 2 stable frames.
+  var micOn = false, micStream = null, analyser = null, micBuf = null, rafId = null;
+  var micCand = null, micCount = 0, micSilence = 0, micLast = null;
+
+  var DET_WINDOW = 1024;                 // samples analysed per frame
+  var DET_MIN_FREQ = midiToFreq(START_MIDI - 1);  // ~246 Hz (just below C4)
+  var DET_MAX_FREQ = midiToFreq(END_MIDI + 1);     // ~1046 Hz (just above B5)
+  var DET_CLARITY = 0.9;                 // 0..1; higher = stricter (rejects voice/noise)
+  var DET_RMS_GATE = 0.02;               // ignore quiet background sound
+  var STABLE_FRAMES = 2;                 // frames a pitch must hold before it counts
+
+  // Returns { freq, clarity }; freq is -1 when no confident piano pitch is found.
+  function detectPitch(buf, sr) {
+    var SIZE = Math.min(buf.length, DET_WINDOW), i, j;
+    var minLag = Math.max(2, Math.floor(sr / DET_MAX_FREQ));
+    var maxLag = Math.min(SIZE - 2, Math.floor(sr / DET_MIN_FREQ));
+    if (maxLag <= minLag) return { freq: -1, clarity: 0 };
+
+    var energy = 0;
+    for (i = 0; i < SIZE; i++) energy += buf[i] * buf[i];
+    if (Math.sqrt(energy / SIZE) < DET_RMS_GATE) return { freq: -1, clarity: 0 };
+
+    var nsdf = new Float32Array(maxLag + 2);
+    var bestLag = -1, bestVal = 0;
+    for (var lag = minLag; lag <= maxLag; lag++) {
+      var r = 0, m = 0;
+      for (j = 0; j < SIZE - lag; j++) {
+        var a0 = buf[j], a1 = buf[j + lag];
+        r += a0 * a1;
+        m += a0 * a0 + a1 * a1;
+      }
+      var v = m > 0 ? (2 * r / m) : 0;   // normalized square difference, in [-1, 1]
+      nsdf[lag] = v;
+      if (v > bestVal) { bestVal = v; bestLag = lag; }
+    }
+    if (bestLag < 0 || bestVal < DET_CLARITY) return { freq: -1, clarity: bestVal };
+
+    // Parabolic interpolation for a sub-sample lag estimate.
+    var x1 = nsdf[bestLag - 1] || 0, x2 = nsdf[bestLag], x3 = nsdf[bestLag + 1] || 0;
+    var denom = (x1 + x3 - 2 * x2);
+    var lagI = denom ? bestLag - 0.5 * (x3 - x1) / denom : bestLag;
+    return { freq: sr / lagI, clarity: bestVal };
+  }
+
+  function micLoop() {
+    analyser.getFloatTimeDomainData(micBuf);
+    var res = detectPitch(micBuf, audioCtx.sampleRate);
+    if (res.freq === -1) {
+      micSilence++;
+      if (micSilence > 2) { micCand = null; micCount = 0; micLast = null; }
+    } else {
+      micSilence = 0;
+      var midi = Math.round(freqToMidi(res.freq));
+      if (midi === micCand) micCount++; else { micCand = midi; micCount = 1; }
+      if (micCount === STABLE_FRAMES && midi !== micLast) {
+        micLast = midi;
+        registerInput(midi, false);
+      }
+    }
+    rafId = requestAnimationFrame(micLoop);
+  }
+
+  function toggleMic() {
+    if (micOn) {
+      micOn = false; micBtn.setAttribute("aria-pressed", "false");
+      micStatus.textContent = ""; micStatus.className = "mic-status";
+      if (rafId) cancelAnimationFrame(rafId);
+      if (micStream) micStream.getTracks().forEach(function (t) { t.stop(); });
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      micStatus.textContent = "Microphone not available in this view \u2014 open the page locally over http://localhost.";
+      micStatus.className = "mic-status error"; return;
+    }
+    ensureAudio();
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      micStream = stream; micOn = true; micBtn.setAttribute("aria-pressed", "true");
+      micStatus.textContent = "Listening \u2014 play a note."; micStatus.className = "mic-status live";
+      var src = audioCtx.createMediaStreamSource(stream);
+      analyser = audioCtx.createAnalyser(); analyser.fftSize = 2048;
+      micBuf = new Float32Array(analyser.fftSize);
+      src.connect(analyser);
+      micLoop();
+    }).catch(function () {
+      micStatus.textContent = "Microphone permission denied.";
+      micStatus.className = "mic-status error";
+    });
+  }
+
+  // ---- Wiring --------------------------------------------------------------
+  var pieceSelect = $("pieceSelect");
+  Object.keys(PIECES).forEach(function (k) {
+    var o = document.createElement("option"); o.value = k; o.textContent = PIECES[k].title;
+    pieceSelect.appendChild(o);
+  });
+  pieceSelect.addEventListener("change", function () { loadPiece(pieceSelect.value); });
+
+  $("modeGroup").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-mode]"); if (!b) return;
+    state.mode = b.dataset.mode;
+    Array.prototype.forEach.call(this.children, function (c) {
+      c.setAttribute("aria-pressed", c === b ? "true" : "false");
+    });
+    resetSession();
+  });
+
+  startBtn.addEventListener("click", start);
+  micBtn.addEventListener("click", toggleMic);
+
+  $("themeToggle").addEventListener("click", function () {
+    var root = document.documentElement;
+    var cur = root.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+
+  // ---- Init ----------------------------------------------------------------
+  buildKeyboard();
+  loadPiece("twinkle");
+  window.addEventListener("resize", function () {
+    // rebuild only the black-key positioning is % based, so nothing needed.
+  });
+})();
+</script>
